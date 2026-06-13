@@ -1,0 +1,25 @@
+{
+  "name": "Munchies for Munchkins",
+  "short_name": "Munchies",
+  "description": "AI-powered recipes for babies and toddlers using ingredients you already have at home",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fffbf5",
+  "theme_color": "#f97316",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["food", "health", "parenting"]
+}
