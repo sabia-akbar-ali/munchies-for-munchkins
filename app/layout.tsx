@@ -17,6 +17,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Munchies for Munchkins" />
         <meta name="mobile-web-app-capable" content="yes" />
+        <script dangerouslySetInnerHTML={{ __html: `if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js')); }` }} />
       </head>
       <body style={{ fontFamily: "'Nunito', sans-serif" }} className="min-h-screen">
         {children}
