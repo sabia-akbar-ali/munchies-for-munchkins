@@ -52,7 +52,9 @@ Respond with ONLY a valid JSON object in exactly this format, no markdown, no ex
       throw new Error("Unexpected response type");
     }
 
-    const recipe = JSON.parse(content.text);
+    // Strip markdown code blocks if Claude wraps the JSON
+    const raw = content.text.replace(/^```(?:json)?\n?/i, "").replace(/\n?```$/i, "").trim();
+    const recipe = JSON.parse(raw);
     return NextResponse.json({ recipe });
   } catch (error) {
     console.error("Recipe generation error:", error);
