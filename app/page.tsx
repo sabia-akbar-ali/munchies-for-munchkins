@@ -37,7 +37,7 @@ export default function Home() {
   const [ingredients, setIngredients] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [age, setAge] = useState("12 months");
-  const [texture, setTexture] = useState("Mashed");
+  const [texture, setTexture] = useState("Purée");
   const [allergens, setAllergens] = useState<string[]>([]);
   const [halal, setHalal] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -55,6 +55,19 @@ export default function Home() {
 
   const removeIngredient = (item: string) => {
     setIngredients(ingredients.filter((i) => i !== item));
+  };
+
+  const EARLY_AGES = ["6 months", "9 months"];
+  const PUREE_ONLY_AGES = ["6 months"];
+  const NO_FINGER_FOOD_AGES = ["6 months", "9 months"];
+
+  const handleAgeChange = (selectedAge: string) => {
+    setAge(selectedAge);
+    if (PUREE_ONLY_AGES.includes(selectedAge)) {
+      setTexture("Purée");
+    } else if (NO_FINGER_FOOD_AGES.includes(selectedAge) && texture === "Finger Food") {
+      setTexture("Mashed");
+    }
   };
 
   const toggleAllergen = (a: string) => {
@@ -163,7 +176,7 @@ export default function Home() {
                 {AGE_OPTIONS.map((a) => (
                   <button
                     key={a}
-                    onClick={() => setAge(a)}
+                    onClick={() => handleAgeChange(a)}
                     className={`px-4 py-2 rounded-full text-sm font-bold border-2 transition-all ${
                       age === a
                         ? "border-orange-400 bg-orange-400 text-white"
@@ -180,21 +193,29 @@ export default function Home() {
             <div className="bg-white rounded-2xl p-5 shadow-sm">
               <h3 className="font-black text-gray-700 mb-3 text-sm uppercase tracking-wide">🥄 Texture</h3>
               <div className="grid grid-cols-2 gap-2">
-                {TEXTURE_OPTIONS.map((t) => (
-                  <button
-                    key={t.value}
-                    onClick={() => setTexture(t.value)}
-                    className={`p-3 rounded-xl border-2 text-left transition-all ${
-                      texture === t.value
-                        ? "border-orange-400 bg-orange-50"
-                        : "border-gray-100 hover:border-orange-200"
-                    }`}
-                  >
-                    <div className="text-2xl">{t.emoji}</div>
-                    <div className="font-bold text-sm text-gray-700">{t.value}</div>
-                    <div className="text-xs text-gray-400">{t.desc}</div>
-                  </button>
-                ))}
+                {TEXTURE_OPTIONS.map((t) => {
+                  const isDisabled =
+                    (PUREE_ONLY_AGES.includes(age) && t.value !== "Purée") ||
+                    (NO_FINGER_FOOD_AGES.includes(age) && t.value === "Finger Food");
+                  return (
+                    <button
+                      key={t.value}
+                      onClick={() => !isDisabled && setTexture(t.value)}
+                      disabled={isDisabled}
+                      className={`p-3 rounded-xl border-2 text-left transition-all ${
+                        isDisabled
+                          ? "border-gray-100 bg-gray-50 opacity-40 cursor-not-allowed"
+                          : texture === t.value
+                          ? "border-orange-400 bg-orange-50"
+                          : "border-gray-100 hover:border-orange-200"
+                      }`}
+                    >
+                      <div className="text-2xl">{t.emoji}</div>
+                      <div className="font-bold text-sm text-gray-700">{t.value}</div>
+                      <div className="text-xs text-gray-400">{isDisabled ? "Not suitable for this age" : t.desc}</div>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
