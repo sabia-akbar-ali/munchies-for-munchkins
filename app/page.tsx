@@ -139,7 +139,7 @@ export default function Home() {
         </main>
 
         <footer className="text-center pb-6 text-xs text-gray-400 px-6">
-          Always introduce new foods one at a time and watch for allergic reactions. Consult your health visitor if you have concerns.
+          Every child develops differently. Age guidance is a general suggestion only. Always consult your health visitor or GP before introducing new foods. This app does not provide medical advice.
         </footer>
       </div>
     );
@@ -334,7 +334,7 @@ export default function Home() {
             </div>
 
             <div className="bg-amber-50 rounded-2xl p-4 text-xs text-amber-700 border border-amber-200">
-              ⚠️ <strong>Important:</strong> Always introduce new foods one at a time and watch for allergic reactions. Consult your health visitor or GP if you have concerns about your child&apos;s diet or allergies. This app does not provide medical advice.
+              ⚠️ <strong>Important Disclaimer:</strong> Every child develops at a different pace. The age guidance in this app is a general suggestion only — it does not account for your individual child&apos;s development, readiness, or medical needs. Always follow your child&apos;s lead and consult your health visitor, GP, or paediatric dietitian before introducing new foods, especially if your child has allergies, intolerances, or any health conditions. Introduce new foods one at a time and watch for any reactions. This app does not provide medical or nutritional advice.
             </div>
 
             <div className="grid grid-cols-2 gap-3">
