@@ -233,7 +233,10 @@ export default function Home() {
           <>
             {/* Age */}
             <div className="rounded-2xl p-5 shadow-sm" style={{ background: "#F5F0FF" }}>
-              <h3 className="font-black mb-3 text-sm uppercase tracking-wide" style={{ color: "#6B21A8" }}>👶 Child&apos;s Age</h3>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-9 h-9 rounded-full flex items-center justify-center text-white font-black text-lg flex-shrink-0" style={{ background: "#7C3AED" }}>1</div>
+                <h3 className="font-black text-base uppercase tracking-wide" style={{ color: "#6B21A8" }}>👶 Child&apos;s Age</h3>
+              </div>
               <div className="flex flex-wrap gap-2">
                 {AGE_OPTIONS.map((a) => (
                   <button
@@ -254,7 +257,10 @@ export default function Home() {
 
             {/* Experience level */}
             <div className="bg-white rounded-2xl p-5 shadow-sm">
-              <h3 className="font-black mb-3 text-sm uppercase tracking-wide" style={{ color: "#0F766E" }}>🍴 Eating Experience</h3>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-9 h-9 rounded-full flex items-center justify-center text-white font-black text-lg flex-shrink-0" style={{ background: "#0F766E" }}>2</div>
+                <h3 className="font-black text-base uppercase tracking-wide" style={{ color: "#0F766E" }}>🍴 Eating Experience</h3>
+              </div>
               <div className="grid grid-cols-3 gap-2">
                 {EXPERIENCE_OPTIONS.map((opt) => (
                   <button
@@ -277,7 +283,10 @@ export default function Home() {
 
             {/* Texture */}
             <div className="rounded-2xl p-5 shadow-sm" style={{ background: "#FFFBEB" }}>
-              <h3 className="font-black mb-3 text-sm uppercase tracking-wide" style={{ color: "#92400E" }}>🥄 Texture</h3>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-9 h-9 rounded-full flex items-center justify-center text-white font-black text-lg flex-shrink-0" style={{ background: "#D97706" }}>3</div>
+                <h3 className="font-black text-base uppercase tracking-wide" style={{ color: "#92400E" }}>🥄 Texture</h3>
+              </div>
               <div className="grid grid-cols-2 gap-2">
                 {TEXTURE_OPTIONS.map((t) => {
                   const isDisabled =
@@ -308,7 +317,10 @@ export default function Home() {
 
             {/* Ingredients */}
             <div className="rounded-2xl p-5 shadow-sm" style={{ background: "#FFF1EE" }}>
-              <h3 className="font-black mb-3 text-sm uppercase tracking-wide" style={{ color: "#C2410C" }}>🛒 Your Ingredients</h3>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-9 h-9 rounded-full flex items-center justify-center text-white font-black text-lg flex-shrink-0" style={{ background: "#F97316" }}>4</div>
+                <h3 className="font-black text-base uppercase tracking-wide" style={{ color: "#C2410C" }}>🛒 Your Ingredients</h3>
+              </div>
               <div className="relative">
                 <div className="flex gap-2 mb-1">
                   <input
