@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 
 const AGE_OPTIONS = [
   "6 months", "9 months", "12 months", "18 months",
@@ -17,9 +18,9 @@ const TEXTURE_OPTIONS = [
 const ALLERGEN_OPTIONS = ["Nut-free", "Dairy-free", "Egg-free", "Gluten-free"];
 
 const EXPERIENCE_OPTIONS = [
-  { value: "just starting", label: "Just Starting", emoji: "🌱", desc: "Simple, mild flavours" },
-  { value: "getting adventurous", label: "Getting There", emoji: "⭐", desc: "Some variety & spice" },
-  { value: "experienced eater", label: "Experienced", emoji: "🏆", desc: "Bold, complex dishes" },
+  { value: "just starting", label: "Just Starting", emoji: "🌱", desc: "Simple, mild flavours", color: "#16A34A", bg: "#DCFCE7", border: "#86EFAC" },
+  { value: "getting adventurous", label: "Getting There", emoji: "⭐", desc: "Some variety & spice", color: "#D97706", bg: "#FEF3C7", border: "#FCD34D" },
+  { value: "experienced eater", label: "Experienced", emoji: "🏆", desc: "Bold, complex dishes", color: "#7C3AED", bg: "#F5F3FF", border: "#C4B5FD" },
 ];
 
 const COMMON_INGREDIENTS = [
@@ -37,9 +38,9 @@ const COMMON_INGREDIENTS = [
 ].sort();
 
 const RECIPE_TABS = [
-  { label: "🌱 Simple", key: 0 },
-  { label: "⭐ Next Level", key: 1 },
-  { label: "👨‍🍳 Chef's Pick", key: 2 },
+  { label: "🌱 Simple", key: 0, color: "#16A34A", gradient: "linear-gradient(135deg, #22C55E, #4ADE80)" },
+  { label: "⭐ Next Level", key: 1, color: "#EA7316", gradient: "linear-gradient(135deg, #F97316, #FB923C)" },
+  { label: "👨‍🍳 Chef's Pick", key: 2, color: "#7C3AED", gradient: "linear-gradient(135deg, #7C3AED, #A78BFA)" },
 ];
 
 interface Ingredient {
@@ -166,39 +167,42 @@ export default function Home() {
     setPreviousRecipeNames([]);
   };
 
+  const activeTab = RECIPE_TABS[selectedRecipe];
+
   if (!showGenerator) {
     return (
-      <div className="min-h-screen flex flex-col" style={{ background: "linear-gradient(135deg, #fff8ee 0%, #ffeedd 100%)" }}>
+      <div className="min-h-screen flex flex-col" style={{ background: "linear-gradient(135deg, #FFD6D0 0%, #C5EDE8 100%)" }}>
         <header className="text-center pt-12 pb-6 px-6">
-          <div className="text-6xl mb-3">🍽️👶</div>
-          <h1 className="text-4xl font-black text-orange-500 tracking-tight">Munchies for Munchkins</h1>
-          <p className="text-lg text-amber-700 font-semibold mt-2">AI recipes from ingredients you already have</p>
+          <div className="flex justify-center mb-4">
+            <Image src="/icon-512.png" alt="Munchies for Munchkins" width={96} height={96} className="rounded-3xl shadow-lg" />
+          </div>
+          <h1 className="text-4xl font-black tracking-tight" style={{ color: "#E8601A" }}>Munchies for Munchkins</h1>
+          <p className="text-lg font-semibold mt-2" style={{ color: "#0F766E" }}>AI recipes from ingredients you already have</p>
         </header>
 
         <main className="flex-1 flex flex-col items-center justify-center px-6 pb-12">
           <div className="max-w-md w-full bg-white rounded-3xl shadow-xl p-8 text-center">
-            <div className="text-5xl mb-4">✨</div>
             <h2 className="text-2xl font-black text-gray-800 mb-3">What&apos;s in your kitchen?</h2>
-            <p className="text-gray-600 mb-6 leading-relaxed">
+            <p className="text-gray-500 mb-6 leading-relaxed">
               Tell us what ingredients you have at home and we&apos;ll create safe, nutritious, and tasty recipes perfectly suited to your little one&apos;s age and needs.
             </p>
             <div className="grid grid-cols-2 gap-3 mb-6 text-sm">
               {[
-                { emoji: "👶", text: "Age-appropriate recipes" },
-                { emoji: "🌿", text: "Allergen filters" },
-                { emoji: "✅", text: "Halal option" },
-                { emoji: "⚡", text: "3 options at once" },
+                { emoji: "👶", text: "Age-appropriate recipes", bg: "#F5F0FF", color: "#6B21A8" },
+                { emoji: "🌿", text: "Allergen filters", bg: "#DCFCE7", color: "#15803D" },
+                { emoji: "✅", text: "Halal option", bg: "#E0F7F4", color: "#0F766E" },
+                { emoji: "⚡", text: "3 options at once", bg: "#FEF3C7", color: "#92400E" },
               ].map((f) => (
-                <div key={f.text} className="bg-orange-50 rounded-xl p-3 flex items-center gap-2 text-left">
+                <div key={f.text} className="rounded-xl p-3 flex items-center gap-2 text-left" style={{ background: f.bg }}>
                   <span className="text-xl">{f.emoji}</span>
-                  <span className="font-semibold text-orange-800">{f.text}</span>
+                  <span className="font-semibold text-sm" style={{ color: f.color }}>{f.text}</span>
                 </div>
               ))}
             </div>
             <button
               onClick={() => setShowGenerator(true)}
               className="w-full py-4 rounded-2xl text-white font-black text-lg shadow-lg transition-transform hover:scale-105 active:scale-95"
-              style={{ background: "linear-gradient(135deg, #f97316, #fb923c)" }}
+              style={{ background: "linear-gradient(135deg, #F97316, #EC4899)" }}
             >
               Get Recipes 🍳
             </button>
@@ -206,7 +210,7 @@ export default function Home() {
           </div>
         </main>
 
-        <footer className="text-center pb-6 text-xs text-gray-400 px-6">
+        <footer className="text-center pb-6 text-xs text-gray-500 px-6">
           Every child develops differently. Age guidance is a general suggestion only. Always consult your health visitor or GP before introducing new foods. This app does not provide medical advice.
         </footer>
       </div>
@@ -214,10 +218,13 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen pb-16" style={{ background: "linear-gradient(135deg, #fff8ee 0%, #ffeedd 100%)" }}>
+    <div className="min-h-screen pb-16" style={{ background: "linear-gradient(135deg, #FFD6D0 0%, #C5EDE8 100%)" }}>
       <header className="sticky top-0 z-10 bg-white shadow-sm px-6 py-4 flex items-center justify-between">
-        <button onClick={() => { setShowGenerator(false); setRecipes(null); }} className="text-orange-400 font-bold text-sm">← Back</button>
-        <span className="font-black text-orange-500 text-lg">🍽️ Munchies for Munchkins</span>
+        <button onClick={() => { setShowGenerator(false); setRecipes(null); }} className="font-bold text-sm" style={{ color: "#F97316" }}>← Back</button>
+        <div className="flex items-center gap-2">
+          <Image src="/icon-512.png" alt="" width={28} height={28} className="rounded-lg" />
+          <span className="font-black text-lg" style={{ color: "#E8601A" }}>Munchies for Munchkins</span>
+        </div>
         <div className="w-12" />
       </header>
 
@@ -225,18 +232,19 @@ export default function Home() {
         {!recipes ? (
           <>
             {/* Age */}
-            <div className="bg-white rounded-2xl p-5 shadow-sm">
-              <h3 className="font-black text-gray-700 mb-3 text-sm uppercase tracking-wide">👶 Child&apos;s Age</h3>
+            <div className="rounded-2xl p-5 shadow-sm" style={{ background: "#F5F0FF" }}>
+              <h3 className="font-black mb-3 text-sm uppercase tracking-wide" style={{ color: "#6B21A8" }}>👶 Child&apos;s Age</h3>
               <div className="flex flex-wrap gap-2">
                 {AGE_OPTIONS.map((a) => (
                   <button
                     key={a}
                     onClick={() => handleAgeChange(a)}
-                    className={`px-4 py-2 rounded-full text-sm font-bold border-2 transition-all ${
+                    className="px-4 py-2 rounded-full text-sm font-bold border-2 transition-all"
+                    style={
                       age === a
-                        ? "border-orange-400 bg-orange-400 text-white"
-                        : "border-orange-200 text-orange-600 hover:border-orange-400"
-                    }`}
+                        ? { borderColor: "#7C3AED", background: "#7C3AED", color: "white" }
+                        : { borderColor: "#C4B5FD", color: "#6B21A8" }
+                    }
                   >
                     {a}
                   </button>
@@ -246,20 +254,21 @@ export default function Home() {
 
             {/* Experience level */}
             <div className="bg-white rounded-2xl p-5 shadow-sm">
-              <h3 className="font-black text-gray-700 mb-3 text-sm uppercase tracking-wide">🍴 Eating Experience</h3>
+              <h3 className="font-black mb-3 text-sm uppercase tracking-wide" style={{ color: "#0F766E" }}>🍴 Eating Experience</h3>
               <div className="grid grid-cols-3 gap-2">
                 {EXPERIENCE_OPTIONS.map((opt) => (
                   <button
                     key={opt.value}
                     onClick={() => setExperienceLevel(opt.value)}
-                    className={`p-3 rounded-xl border-2 text-center transition-all ${
+                    className="p-3 rounded-xl border-2 text-center transition-all"
+                    style={
                       experienceLevel === opt.value
-                        ? "border-orange-400 bg-orange-50"
-                        : "border-gray-100 hover:border-orange-200"
-                    }`}
+                        ? { borderColor: opt.color, background: opt.bg }
+                        : { borderColor: "#E5E7EB" }
+                    }
                   >
                     <div className="text-2xl">{opt.emoji}</div>
-                    <div className="font-bold text-xs text-gray-700 mt-1">{opt.label}</div>
+                    <div className="font-bold text-xs mt-1" style={{ color: experienceLevel === opt.value ? opt.color : "#374151" }}>{opt.label}</div>
                     <div className="text-xs text-gray-400 mt-0.5">{opt.desc}</div>
                   </button>
                 ))}
@@ -267,8 +276,8 @@ export default function Home() {
             </div>
 
             {/* Texture */}
-            <div className="bg-white rounded-2xl p-5 shadow-sm">
-              <h3 className="font-black text-gray-700 mb-3 text-sm uppercase tracking-wide">🥄 Texture</h3>
+            <div className="rounded-2xl p-5 shadow-sm" style={{ background: "#FFFBEB" }}>
+              <h3 className="font-black mb-3 text-sm uppercase tracking-wide" style={{ color: "#92400E" }}>🥄 Texture</h3>
               <div className="grid grid-cols-2 gap-2">
                 {TEXTURE_OPTIONS.map((t) => {
                   const isDisabled =
@@ -279,13 +288,14 @@ export default function Home() {
                       key={t.value}
                       onClick={() => !isDisabled && setTexture(t.value)}
                       disabled={isDisabled}
-                      className={`p-3 rounded-xl border-2 text-left transition-all ${
+                      className="p-3 rounded-xl border-2 text-left transition-all"
+                      style={
                         isDisabled
-                          ? "border-gray-100 bg-gray-50 opacity-40 cursor-not-allowed"
+                          ? { borderColor: "#F3F4F6", background: "#F9FAFB", opacity: 0.4, cursor: "not-allowed" }
                           : texture === t.value
-                          ? "border-orange-400 bg-orange-50"
-                          : "border-gray-100 hover:border-orange-200"
-                      }`}
+                          ? { borderColor: "#F59E0B", background: "#FEF3C7" }
+                          : { borderColor: "#FDE68A" }
+                      }
                     >
                       <div className="text-2xl">{t.emoji}</div>
                       <div className="font-bold text-sm text-gray-700">{t.value}</div>
@@ -297,36 +307,32 @@ export default function Home() {
             </div>
 
             {/* Ingredients */}
-            <div className="bg-white rounded-2xl p-5 shadow-sm">
-              <h3 className="font-black text-gray-700 mb-3 text-sm uppercase tracking-wide">🛒 Your Ingredients</h3>
+            <div className="rounded-2xl p-5 shadow-sm" style={{ background: "#FFF1EE" }}>
+              <h3 className="font-black mb-3 text-sm uppercase tracking-wide" style={{ color: "#C2410C" }}>🛒 Your Ingredients</h3>
               <div className="relative">
                 <div className="flex gap-2 mb-1">
                   <input
                     type="text"
                     value={inputValue}
-                    onChange={(e) => {
-                      setInputValue(e.target.value);
-                      setShowSuggestions(true);
-                    }}
+                    onChange={(e) => { setInputValue(e.target.value); setShowSuggestions(true); }}
                     onFocus={() => setShowSuggestions(true)}
                     onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") addIngredient();
-                    }}
+                    onKeyDown={(e) => { if (e.key === "Enter") addIngredient(); }}
                     placeholder="e.g. sweet potato, chicken..."
-                    className="flex-1 border-2 border-orange-200 rounded-xl px-4 py-2 text-sm font-semibold focus:outline-none focus:border-orange-400"
+                    className="flex-1 border-2 rounded-xl px-4 py-2 text-sm font-semibold focus:outline-none"
+                    style={{ borderColor: "#FCA99A" }}
                   />
                   <button
                     onClick={() => addIngredient()}
                     className="px-4 py-2 rounded-xl text-white font-black text-sm"
-                    style={{ background: "#f97316" }}
+                    style={{ background: "#F97316" }}
                   >
                     Add
                   </button>
                 </div>
 
                 {showSuggestions && filteredSuggestions.length > 0 && (
-                  <div className="absolute left-0 right-0 z-20 bg-white border-2 border-orange-200 rounded-xl shadow-lg overflow-hidden">
+                  <div className="absolute left-0 right-0 z-20 bg-white border-2 rounded-xl shadow-lg overflow-hidden" style={{ borderColor: "#FCA99A" }}>
                     {filteredSuggestions.map((s) => (
                       <button
                         key={s}
@@ -341,14 +347,14 @@ export default function Home() {
                 )}
               </div>
 
-              <p className="text-xs text-gray-400 mb-3">Start typing to see suggestions, or type any ingredient and tap Add</p>
+              <p className="text-xs text-orange-400 mb-3">Start typing to see suggestions, or type any ingredient and tap Add</p>
 
               {ingredients.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                   {ingredients.map((ing) => (
-                    <span key={ing} className="flex items-center gap-1 bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-sm font-bold capitalize">
+                    <span key={ing} className="flex items-center gap-1 px-3 py-1 rounded-full text-sm font-bold capitalize" style={{ background: "#FECDD3", color: "#BE123C" }}>
                       {ing}
-                      <button onClick={() => removeIngredient(ing)} className="ml-1 text-orange-400 hover:text-orange-700">×</button>
+                      <button onClick={() => removeIngredient(ing)} className="ml-1" style={{ color: "#FB7185" }}>×</button>
                     </span>
                   ))}
                 </div>
@@ -357,18 +363,19 @@ export default function Home() {
             </div>
 
             {/* Allergens & Halal */}
-            <div className="bg-white rounded-2xl p-5 shadow-sm">
-              <h3 className="font-black text-gray-700 mb-3 text-sm uppercase tracking-wide">⚠️ Dietary Needs</h3>
+            <div className="rounded-2xl p-5 shadow-sm" style={{ background: "#F0FDF4" }}>
+              <h3 className="font-black mb-3 text-sm uppercase tracking-wide" style={{ color: "#15803D" }}>⚠️ Dietary Needs</h3>
               <div className="flex flex-wrap gap-2 mb-3">
                 {ALLERGEN_OPTIONS.map((a) => (
                   <button
                     key={a}
                     onClick={() => toggleAllergen(a)}
-                    className={`px-4 py-2 rounded-full text-sm font-bold border-2 transition-all ${
+                    className="px-4 py-2 rounded-full text-sm font-bold border-2 transition-all"
+                    style={
                       allergens.includes(a)
-                        ? "border-green-400 bg-green-100 text-green-700"
-                        : "border-gray-200 text-gray-500 hover:border-green-300"
-                    }`}
+                        ? { borderColor: "#16A34A", background: "#DCFCE7", color: "#15803D" }
+                        : { borderColor: "#BBF7D0", color: "#6B7280" }
+                    }
                   >
                     {allergens.includes(a) ? "✓ " : ""}{a}
                   </button>
@@ -376,16 +383,15 @@ export default function Home() {
               </div>
               <button
                 onClick={() => setHalal(!halal)}
-                className={`flex items-center gap-3 w-full p-3 rounded-xl border-2 transition-all ${
-                  halal ? "border-green-400 bg-green-50" : "border-gray-100 hover:border-green-200"
-                }`}
+                className="flex items-center gap-3 w-full p-3 rounded-xl border-2 transition-all bg-white"
+                style={{ borderColor: halal ? "#16A34A" : "#E5E7EB" }}
               >
                 <span className="text-xl">🌙</span>
                 <div className="text-left flex-1">
                   <div className="font-bold text-sm text-gray-700">Halal</div>
                   <div className="text-xs text-gray-400">Halal ingredients only</div>
                 </div>
-                <div className={`w-10 h-6 rounded-full transition-colors relative ${halal ? "bg-green-400" : "bg-gray-200"}`}>
+                <div className="w-10 h-6 rounded-full transition-colors relative" style={{ background: halal ? "#16A34A" : "#D1D5DB" }}>
                   <div
                     className="w-5 h-5 bg-white rounded-full shadow absolute top-0.5 transition-all"
                     style={{ left: halal ? "18px" : "2px" }}
@@ -402,8 +408,8 @@ export default function Home() {
               style={{
                 background:
                   loading || ingredients.length === 0
-                    ? "#d1d5db"
-                    : "linear-gradient(135deg, #f97316, #fb923c)",
+                    ? "#D1D5DB"
+                    : "linear-gradient(135deg, #F97316 0%, #EC4899 100%)",
               }}
             >
               {loading ? "🍳 Cooking up 3 recipes..." : "✨ Generate My Recipes"}
@@ -417,15 +423,11 @@ export default function Home() {
                 <button
                   key={tab.key}
                   onClick={() => setSelectedRecipe(tab.key)}
-                  className={`flex-1 py-2.5 rounded-xl text-sm font-black transition-all ${
-                    selectedRecipe === tab.key
-                      ? "text-white shadow-sm"
-                      : "text-gray-400 hover:text-orange-500"
-                  }`}
+                  className="flex-1 py-2.5 rounded-xl text-sm font-black transition-all"
                   style={
                     selectedRecipe === tab.key
-                      ? { background: "linear-gradient(135deg, #f97316, #fb923c)" }
-                      : {}
+                      ? { background: tab.gradient, color: "white" }
+                      : { color: "#9CA3AF" }
                   }
                 >
                   {tab.label}
@@ -435,15 +437,15 @@ export default function Home() {
 
             {recipes[selectedRecipe] && (
               <>
-                <div className="bg-white rounded-3xl p-6 shadow-sm">
+                <div className="bg-white rounded-3xl p-6 shadow-sm" style={{ borderTop: `4px solid ${activeTab.color}` }}>
                   <div className="text-4xl text-center mb-3">🍽️</div>
                   <h2 className="text-2xl font-black text-gray-800 text-center mb-2">{recipes[selectedRecipe].recipeName}</h2>
-                  <p className="text-gray-600 text-center mb-4">{recipes[selectedRecipe].description}</p>
+                  <p className="text-gray-500 text-center mb-4">{recipes[selectedRecipe].description}</p>
                   <div className="flex justify-center gap-4 text-sm text-gray-500 font-semibold mb-4">
                     <span>⏱ Prep: {recipes[selectedRecipe].prepTime}</span>
                     <span>🔥 Cook: {recipes[selectedRecipe].cookTime}</span>
                   </div>
-                  <div className="bg-orange-50 rounded-xl p-3 text-sm text-orange-700 font-semibold text-center">
+                  <div className="rounded-xl p-3 text-sm font-semibold text-center" style={{ background: `${activeTab.color}18`, color: activeTab.color }}>
                     {recipes[selectedRecipe].textureNote}
                   </div>
                 </div>
@@ -453,7 +455,7 @@ export default function Home() {
                   <ul className="space-y-2">
                     {recipes[selectedRecipe].ingredients.map((ing, i) => (
                       <li key={i} className="flex gap-2 text-sm">
-                        <span className="text-orange-400 font-black">•</span>
+                        <span className="font-black" style={{ color: activeTab.color }}>•</span>
                         <span className="font-semibold text-gray-600">{ing.quantity}</span>
                         <span className="text-gray-700">{ing.item}</span>
                       </li>
@@ -468,7 +470,7 @@ export default function Home() {
                       <li key={i} className="flex gap-3 text-sm">
                         <span
                           className="w-6 h-6 rounded-full text-white text-xs font-black flex items-center justify-center flex-shrink-0 mt-0.5"
-                          style={{ background: "#f97316" }}
+                          style={{ background: activeTab.color }}
                         >
                           {i + 1}
                         </span>
@@ -482,7 +484,7 @@ export default function Home() {
                   <div className="bg-green-50 rounded-2xl p-4 text-sm text-green-700 font-semibold">
                     🥦 <strong>Nutrition:</strong> {recipes[selectedRecipe].nutritionalNote}
                   </div>
-                  <div className="bg-blue-50 rounded-2xl p-4 text-sm text-blue-700 font-semibold">
+                  <div className="rounded-2xl p-4 text-sm font-semibold" style={{ background: "#F5F0FF", color: "#6B21A8" }}>
                     👶 <strong>Age note:</strong> {recipes[selectedRecipe].ageSuitabilityNote}
                   </div>
                 </div>
@@ -498,13 +500,14 @@ export default function Home() {
                 onClick={generateRecipe}
                 disabled={loading}
                 className="py-4 rounded-2xl text-white font-black text-sm shadow-lg hover:scale-105 active:scale-95 transition-transform disabled:opacity-50"
-                style={{ background: "linear-gradient(135deg, #f97316, #fb923c)" }}
+                style={{ background: "linear-gradient(135deg, #F97316 0%, #EC4899 100%)" }}
               >
                 {loading ? "🍳 Cooking..." : "🔄 Try Different"}
               </button>
               <button
                 onClick={reset}
-                className="py-4 rounded-2xl font-black text-sm border-2 border-orange-300 text-orange-500 hover:bg-orange-50 transition-colors"
+                className="py-4 rounded-2xl font-black text-sm border-2 transition-colors"
+                style={{ borderColor: "#FCA99A", color: "#F97316" }}
               >
                 🛒 New Ingredients
               </button>
