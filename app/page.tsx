@@ -16,12 +16,39 @@ const TEXTURE_OPTIONS = [
 
 const ALLERGEN_OPTIONS = ["Nut-free", "Dairy-free", "Egg-free", "Gluten-free"];
 
+const EXPERIENCE_OPTIONS = [
+  { value: "just starting", label: "Just Starting", emoji: "🌱", desc: "Simple, mild flavours" },
+  { value: "getting adventurous", label: "Getting There", emoji: "⭐", desc: "Some variety & spice" },
+  { value: "experienced eater", label: "Experienced", emoji: "🏆", desc: "Bold, complex dishes" },
+];
+
+const COMMON_INGREDIENTS = [
+  "apple", "avocado", "banana", "beef", "beetroot", "black beans", "bread",
+  "broccoli", "butter", "butternut squash", "carrot", "cauliflower",
+  "cheddar cheese", "chicken", "chickpeas", "cinnamon", "coconut oil",
+  "cod", "corn", "courgette", "couscous", "cream cheese", "cucumber",
+  "egg", "full-fat yogurt", "garlic", "green beans", "kiwi", "lamb",
+  "leek", "lentils", "mango", "melon", "mild cheese", "mushroom", "oats",
+  "olive oil", "onion", "parsnip", "pasta", "pea", "peach", "pear",
+  "pepper", "plain flour", "plum", "potato", "pumpkin", "quinoa",
+  "raspberry", "red pepper", "rice", "salmon", "spinach", "strawberry",
+  "sweet potato", "tofu", "tomato", "turkey", "vanilla extract",
+  "watermelon", "whole milk",
+].sort();
+
+const RECIPE_TABS = [
+  { label: "🌱 Simple", key: 0 },
+  { label: "⭐ Next Level", key: 1 },
+  { label: "👨‍🍳 Chef's Pick", key: 2 },
+];
+
 interface Ingredient {
   quantity: string;
   item: string;
 }
 
 interface Recipe {
+  complexity: string;
   recipeName: string;
   description: string;
   ingredients: Ingredient[];
@@ -36,20 +63,34 @@ interface Recipe {
 export default function Home() {
   const [ingredients, setIngredients] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [age, setAge] = useState("12 months");
-  const [texture, setTexture] = useState("Purée");
+  const [texture, setTexture] = useState("Mashed");
   const [allergens, setAllergens] = useState<string[]>([]);
   const [halal, setHalal] = useState(false);
+  const [experienceLevel, setExperienceLevel] = useState("getting adventurous");
   const [loading, setLoading] = useState(false);
-  const [recipe, setRecipe] = useState<Recipe | null>(null);
+  const [recipes, setRecipes] = useState<Recipe[] | null>(null);
+  const [selectedRecipe, setSelectedRecipe] = useState(0);
+  const [previousRecipeNames, setPreviousRecipeNames] = useState<string[]>([]);
   const [error, setError] = useState("");
   const [showGenerator, setShowGenerator] = useState(false);
 
-  const addIngredient = () => {
-    const val = inputValue.trim();
-    if (val && !ingredients.includes(val.toLowerCase())) {
-      setIngredients([...ingredients, val.toLowerCase()]);
+  const filteredSuggestions =
+    inputValue.trim().length > 0
+      ? COMMON_INGREDIENTS.filter(
+          (ing) =>
+            ing.includes(inputValue.toLowerCase().trim()) &&
+            !ingredients.includes(ing)
+        ).slice(0, 6)
+      : [];
+
+  const addIngredient = (val?: string) => {
+    const toAdd = (val ?? inputValue).trim().toLowerCase();
+    if (toAdd && !ingredients.includes(toAdd)) {
+      setIngredients((prev) => [...prev, toAdd]);
       setInputValue("");
+      setShowSuggestions(false);
     }
   };
 
@@ -57,7 +98,6 @@ export default function Home() {
     setIngredients(ingredients.filter((i) => i !== item));
   };
 
-  const EARLY_AGES = ["6 months", "9 months"];
   const PUREE_ONLY_AGES = ["6 months"];
   const NO_FINGER_FOOD_AGES = ["6 months", "9 months"];
 
@@ -83,16 +123,29 @@ export default function Home() {
     }
     setError("");
     setLoading(true);
-    setRecipe(null);
+    setRecipes(null);
     try {
       const res = await fetch("/api/generate-recipe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ingredients, age, texture, allergens, halal }),
+        body: JSON.stringify({
+          ingredients,
+          age,
+          texture,
+          allergens,
+          halal,
+          experienceLevel,
+          previousRecipeNames,
+        }),
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
-      setRecipe(data.recipe);
+      setRecipes(data.recipes);
+      setSelectedRecipe(0);
+      setPreviousRecipeNames((prev) => [
+        ...prev,
+        ...data.recipes.map((r: Recipe) => r.recipeName),
+      ]);
     } catch {
       setError("Something went wrong. Please try again!");
     } finally {
@@ -101,14 +154,16 @@ export default function Home() {
   };
 
   const reset = () => {
-    setRecipe(null);
+    setRecipes(null);
     setIngredients([]);
     setInputValue("");
     setAge("12 months");
     setTexture("Mashed");
     setAllergens([]);
     setHalal(false);
+    setExperienceLevel("getting adventurous");
     setError("");
+    setPreviousRecipeNames([]);
   };
 
   if (!showGenerator) {
@@ -125,14 +180,14 @@ export default function Home() {
             <div className="text-5xl mb-4">✨</div>
             <h2 className="text-2xl font-black text-gray-800 mb-3">What&apos;s in your kitchen?</h2>
             <p className="text-gray-600 mb-6 leading-relaxed">
-              Tell us what ingredients you have at home and we&apos;ll create a safe, nutritious, and tasty recipe perfectly suited to your little one&apos;s age and needs.
+              Tell us what ingredients you have at home and we&apos;ll create safe, nutritious, and tasty recipes perfectly suited to your little one&apos;s age and needs.
             </p>
             <div className="grid grid-cols-2 gap-3 mb-6 text-sm">
               {[
                 { emoji: "👶", text: "Age-appropriate recipes" },
                 { emoji: "🌿", text: "Allergen filters" },
                 { emoji: "✅", text: "Halal option" },
-                { emoji: "⚡", text: "Ready in seconds" },
+                { emoji: "⚡", text: "3 options at once" },
               ].map((f) => (
                 <div key={f.text} className="bg-orange-50 rounded-xl p-3 flex items-center gap-2 text-left">
                   <span className="text-xl">{f.emoji}</span>
@@ -145,7 +200,7 @@ export default function Home() {
               className="w-full py-4 rounded-2xl text-white font-black text-lg shadow-lg transition-transform hover:scale-105 active:scale-95"
               style={{ background: "linear-gradient(135deg, #f97316, #fb923c)" }}
             >
-              Get a Recipe 🍳
+              Get Recipes 🍳
             </button>
             <p className="text-xs text-gray-400 mt-4">For babies and toddlers aged 6 months to 5 years</p>
           </div>
@@ -161,13 +216,13 @@ export default function Home() {
   return (
     <div className="min-h-screen pb-16" style={{ background: "linear-gradient(135deg, #fff8ee 0%, #ffeedd 100%)" }}>
       <header className="sticky top-0 z-10 bg-white shadow-sm px-6 py-4 flex items-center justify-between">
-        <button onClick={() => { setShowGenerator(false); setRecipe(null); }} className="text-orange-400 font-bold text-sm">← Back</button>
+        <button onClick={() => { setShowGenerator(false); setRecipes(null); }} className="text-orange-400 font-bold text-sm">← Back</button>
         <span className="font-black text-orange-500 text-lg">🍽️ Munchies for Munchkins</span>
         <div className="w-12" />
       </header>
 
       <div className="max-w-lg mx-auto px-4 pt-6 space-y-5">
-        {!recipe ? (
+        {!recipes ? (
           <>
             {/* Age */}
             <div className="bg-white rounded-2xl p-5 shadow-sm">
@@ -184,6 +239,28 @@ export default function Home() {
                     }`}
                   >
                     {a}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Experience level */}
+            <div className="bg-white rounded-2xl p-5 shadow-sm">
+              <h3 className="font-black text-gray-700 mb-3 text-sm uppercase tracking-wide">🍴 Eating Experience</h3>
+              <div className="grid grid-cols-3 gap-2">
+                {EXPERIENCE_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.value}
+                    onClick={() => setExperienceLevel(opt.value)}
+                    className={`p-3 rounded-xl border-2 text-center transition-all ${
+                      experienceLevel === opt.value
+                        ? "border-orange-400 bg-orange-50"
+                        : "border-gray-100 hover:border-orange-200"
+                    }`}
+                  >
+                    <div className="text-2xl">{opt.emoji}</div>
+                    <div className="font-bold text-xs text-gray-700 mt-1">{opt.label}</div>
+                    <div className="text-xs text-gray-400 mt-0.5">{opt.desc}</div>
                   </button>
                 ))}
               </div>
@@ -222,27 +299,54 @@ export default function Home() {
             {/* Ingredients */}
             <div className="bg-white rounded-2xl p-5 shadow-sm">
               <h3 className="font-black text-gray-700 mb-3 text-sm uppercase tracking-wide">🛒 Your Ingredients</h3>
-              <div className="flex gap-2 mb-3">
-                <input
-                  type="text"
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && addIngredient()}
-                  placeholder="e.g. sweet potato, chicken..."
-                  className="flex-1 border-2 border-orange-200 rounded-xl px-4 py-2 text-sm font-semibold focus:outline-none focus:border-orange-400"
-                />
-                <button
-                  onClick={addIngredient}
-                  className="px-4 py-2 rounded-xl text-white font-black text-sm"
-                  style={{ background: "#f97316" }}
-                >
-                  Add
-                </button>
+              <div className="relative">
+                <div className="flex gap-2 mb-1">
+                  <input
+                    type="text"
+                    value={inputValue}
+                    onChange={(e) => {
+                      setInputValue(e.target.value);
+                      setShowSuggestions(true);
+                    }}
+                    onFocus={() => setShowSuggestions(true)}
+                    onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") addIngredient();
+                    }}
+                    placeholder="e.g. sweet potato, chicken..."
+                    className="flex-1 border-2 border-orange-200 rounded-xl px-4 py-2 text-sm font-semibold focus:outline-none focus:border-orange-400"
+                  />
+                  <button
+                    onClick={() => addIngredient()}
+                    className="px-4 py-2 rounded-xl text-white font-black text-sm"
+                    style={{ background: "#f97316" }}
+                  >
+                    Add
+                  </button>
+                </div>
+
+                {showSuggestions && filteredSuggestions.length > 0 && (
+                  <div className="absolute left-0 right-0 z-20 bg-white border-2 border-orange-200 rounded-xl shadow-lg overflow-hidden">
+                    {filteredSuggestions.map((s) => (
+                      <button
+                        key={s}
+                        onMouseDown={() => addIngredient(s)}
+                        onTouchStart={() => addIngredient(s)}
+                        className="w-full text-left px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-orange-50 border-b border-gray-50 last:border-0 capitalize"
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
+
+              <p className="text-xs text-gray-400 mb-3">Start typing to see suggestions, or type any ingredient and tap Add</p>
+
               {ingredients.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                   {ingredients.map((ing) => (
-                    <span key={ing} className="flex items-center gap-1 bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-sm font-bold">
+                    <span key={ing} className="flex items-center gap-1 bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-sm font-bold capitalize">
                       {ing}
                       <button onClick={() => removeIngredient(ing)} className="ml-1 text-orange-400 hover:text-orange-700">×</button>
                     </span>
@@ -295,76 +399,108 @@ export default function Home() {
               onClick={generateRecipe}
               disabled={loading || ingredients.length === 0}
               className="w-full py-5 rounded-2xl text-white font-black text-xl shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 active:scale-95"
-              style={{ background: loading || ingredients.length === 0 ? "#d1d5db" : "linear-gradient(135deg, #f97316, #fb923c)" }}
+              style={{
+                background:
+                  loading || ingredients.length === 0
+                    ? "#d1d5db"
+                    : "linear-gradient(135deg, #f97316, #fb923c)",
+              }}
             >
-              {loading ? "🍳 Cooking something up..." : "✨ Generate My Recipe"}
+              {loading ? "🍳 Cooking up 3 recipes..." : "✨ Generate My Recipes"}
             </button>
           </>
         ) : (
           <div className="space-y-4">
-            <div className="bg-white rounded-3xl p-6 shadow-sm">
-              <div className="text-4xl text-center mb-3">🍽️</div>
-              <h2 className="text-2xl font-black text-gray-800 text-center mb-2">{recipe.recipeName}</h2>
-              <p className="text-gray-600 text-center mb-4">{recipe.description}</p>
-              <div className="flex justify-center gap-4 text-sm text-gray-500 font-semibold mb-4">
-                <span>⏱ Prep: {recipe.prepTime}</span>
-                <span>🔥 Cook: {recipe.cookTime}</span>
-              </div>
-              <div className="bg-orange-50 rounded-xl p-3 text-sm text-orange-700 font-semibold text-center">
-                {recipe.textureNote}
-              </div>
+            {/* Recipe tabs */}
+            <div className="bg-white rounded-2xl p-2 shadow-sm flex gap-1">
+              {RECIPE_TABS.map((tab) => (
+                <button
+                  key={tab.key}
+                  onClick={() => setSelectedRecipe(tab.key)}
+                  className={`flex-1 py-2.5 rounded-xl text-sm font-black transition-all ${
+                    selectedRecipe === tab.key
+                      ? "text-white shadow-sm"
+                      : "text-gray-400 hover:text-orange-500"
+                  }`}
+                  style={
+                    selectedRecipe === tab.key
+                      ? { background: "linear-gradient(135deg, #f97316, #fb923c)" }
+                      : {}
+                  }
+                >
+                  {tab.label}
+                </button>
+              ))}
             </div>
 
-            <div className="bg-white rounded-2xl p-5 shadow-sm">
-              <h3 className="font-black text-gray-700 mb-3">🛒 Ingredients</h3>
-              <ul className="space-y-2">
-                {recipe.ingredients.map((ing, i) => (
-                  <li key={i} className="flex gap-2 text-sm">
-                    <span className="text-orange-400 font-black">•</span>
-                    <span className="font-semibold text-gray-600">{ing.quantity}</span>
-                    <span className="text-gray-700">{ing.item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            {recipes[selectedRecipe] && (
+              <>
+                <div className="bg-white rounded-3xl p-6 shadow-sm">
+                  <div className="text-4xl text-center mb-3">🍽️</div>
+                  <h2 className="text-2xl font-black text-gray-800 text-center mb-2">{recipes[selectedRecipe].recipeName}</h2>
+                  <p className="text-gray-600 text-center mb-4">{recipes[selectedRecipe].description}</p>
+                  <div className="flex justify-center gap-4 text-sm text-gray-500 font-semibold mb-4">
+                    <span>⏱ Prep: {recipes[selectedRecipe].prepTime}</span>
+                    <span>🔥 Cook: {recipes[selectedRecipe].cookTime}</span>
+                  </div>
+                  <div className="bg-orange-50 rounded-xl p-3 text-sm text-orange-700 font-semibold text-center">
+                    {recipes[selectedRecipe].textureNote}
+                  </div>
+                </div>
 
-            <div className="bg-white rounded-2xl p-5 shadow-sm">
-              <h3 className="font-black text-gray-700 mb-3">👩‍🍳 Instructions</h3>
-              <ol className="space-y-3">
-                {recipe.instructions.map((step, i) => (
-                  <li key={i} className="flex gap-3 text-sm">
-                    <span
-                      className="w-6 h-6 rounded-full text-white text-xs font-black flex items-center justify-center flex-shrink-0 mt-0.5"
-                      style={{ background: "#f97316" }}
-                    >
-                      {i + 1}
-                    </span>
-                    <span className="text-gray-700 leading-relaxed">{step}</span>
-                  </li>
-                ))}
-              </ol>
-            </div>
+                <div className="bg-white rounded-2xl p-5 shadow-sm">
+                  <h3 className="font-black text-gray-700 mb-3">🛒 Ingredients</h3>
+                  <ul className="space-y-2">
+                    {recipes[selectedRecipe].ingredients.map((ing, i) => (
+                      <li key={i} className="flex gap-2 text-sm">
+                        <span className="text-orange-400 font-black">•</span>
+                        <span className="font-semibold text-gray-600">{ing.quantity}</span>
+                        <span className="text-gray-700">{ing.item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
 
-            <div className="grid grid-cols-1 gap-3">
-              <div className="bg-green-50 rounded-2xl p-4 text-sm text-green-700 font-semibold">
-                🥦 <strong>Nutrition:</strong> {recipe.nutritionalNote}
-              </div>
-              <div className="bg-blue-50 rounded-2xl p-4 text-sm text-blue-700 font-semibold">
-                👶 <strong>Age note:</strong> {recipe.ageSuitabilityNote}
-              </div>
-            </div>
+                <div className="bg-white rounded-2xl p-5 shadow-sm">
+                  <h3 className="font-black text-gray-700 mb-3">👩‍🍳 Instructions</h3>
+                  <ol className="space-y-3">
+                    {recipes[selectedRecipe].instructions.map((step, i) => (
+                      <li key={i} className="flex gap-3 text-sm">
+                        <span
+                          className="w-6 h-6 rounded-full text-white text-xs font-black flex items-center justify-center flex-shrink-0 mt-0.5"
+                          style={{ background: "#f97316" }}
+                        >
+                          {i + 1}
+                        </span>
+                        <span className="text-gray-700 leading-relaxed">{step}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
 
-            <div className="bg-amber-50 rounded-2xl p-4 text-xs text-amber-700 border border-amber-200">
-              ⚠️ <strong>Important Disclaimer:</strong> Every child develops at a different pace. The age guidance in this app is a general suggestion only — it does not account for your individual child&apos;s development, readiness, or medical needs. Always follow your child&apos;s lead and consult your health visitor, GP, or paediatric dietitian before introducing new foods, especially if your child has allergies, intolerances, or any health conditions. Introduce new foods one at a time and watch for any reactions. This app does not provide medical or nutritional advice.
-            </div>
+                <div className="grid grid-cols-1 gap-3">
+                  <div className="bg-green-50 rounded-2xl p-4 text-sm text-green-700 font-semibold">
+                    🥦 <strong>Nutrition:</strong> {recipes[selectedRecipe].nutritionalNote}
+                  </div>
+                  <div className="bg-blue-50 rounded-2xl p-4 text-sm text-blue-700 font-semibold">
+                    👶 <strong>Age note:</strong> {recipes[selectedRecipe].ageSuitabilityNote}
+                  </div>
+                </div>
+
+                <div className="bg-amber-50 rounded-2xl p-4 text-xs text-amber-700 border border-amber-200">
+                  ⚠️ <strong>Important Disclaimer:</strong> Every child develops at a different pace. The age guidance in this app is a general suggestion only — it does not account for your individual child&apos;s development, readiness, or medical needs. Always follow your child&apos;s lead and consult your health visitor, GP, or paediatric dietitian before introducing new foods, especially if your child has allergies, intolerances, or any health conditions. Introduce new foods one at a time and watch for any reactions. This app does not provide medical or nutritional advice.
+                </div>
+              </>
+            )}
 
             <div className="grid grid-cols-2 gap-3">
               <button
                 onClick={generateRecipe}
-                className="py-4 rounded-2xl text-white font-black text-sm shadow-lg hover:scale-105 active:scale-95 transition-transform"
+                disabled={loading}
+                className="py-4 rounded-2xl text-white font-black text-sm shadow-lg hover:scale-105 active:scale-95 transition-transform disabled:opacity-50"
                 style={{ background: "linear-gradient(135deg, #f97316, #fb923c)" }}
               >
-                🔄 Another Recipe
+                {loading ? "🍳 Cooking..." : "🔄 Try Different"}
               </button>
               <button
                 onClick={reset}
