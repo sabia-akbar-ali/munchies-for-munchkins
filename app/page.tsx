@@ -557,22 +557,34 @@ export default function Home() {
             {/* Recipe selector */}
             <div className="rounded-3xl p-4 shadow-sm" style={{ background: "linear-gradient(135deg, #FFF7ED, #F0FDF4)" }}>
               <p className="text-center font-black text-gray-700 text-base mb-1">🎉 Your 3 recipes are ready!</p>
-              <p className="text-center text-sm text-gray-500 mb-4">Select one below to view it</p>
-              <div className="grid grid-cols-3 gap-2">
+              <p className="text-center text-sm text-gray-500 mb-3">Tap a recipe below to view it</p>
+              <div className="flex flex-col gap-3">
                 {RECIPE_TABS.map((tab) => (
                   <button
                     key={tab.key}
                     onClick={() => setSelectedRecipe(tab.key)}
-                    className="rounded-2xl font-black transition-all flex flex-col items-center justify-center gap-1 py-5"
+                    className="w-full rounded-2xl transition-all flex items-center gap-4 px-4 py-4 text-left"
                     style={
                       selectedRecipe === tab.key
-                        ? { background: tab.gradient, color: "white", boxShadow: "0 6px 18px rgba(0,0,0,0.20)", transform: "scale(1.05)" }
-                        : { background: "white", color: tab.color, border: `2.5px solid ${tab.color}` }
+                        ? { background: tab.gradient, color: "white", boxShadow: "0 6px 18px rgba(0,0,0,0.18)" }
+                        : { background: "white", border: `2.5px solid ${tab.color}` }
                     }
                   >
-                    <span className="text-2xl">{tab.emoji}</span>
-                    <span className="text-xs font-black leading-tight text-center">{tab.label}</span>
-                    <span className="text-xs font-semibold opacity-80 leading-tight text-center">{tab.tagline}</span>
+                    <span className="text-3xl flex-shrink-0">{tab.emoji}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="font-black text-base" style={selectedRecipe === tab.key ? { color: "white" } : { color: tab.color }}>{tab.label}</span>
+                        <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={selectedRecipe === tab.key ? { background: "rgba(255,255,255,0.25)", color: "white" } : { background: `${tab.color}18`, color: tab.color }}>{tab.tagline}</span>
+                      </div>
+                      {recipes && recipes[tab.key] && (
+                        <p className="text-sm font-semibold mt-0.5 truncate" style={selectedRecipe === tab.key ? { color: "rgba(255,255,255,0.9)" } : { color: "#6B7280" }}>
+                          {recipes[tab.key].recipeName}
+                        </p>
+                      )}
+                    </div>
+                    <span className="text-xl flex-shrink-0" style={selectedRecipe === tab.key ? { color: "white" } : { color: tab.color }}>
+                      {selectedRecipe === tab.key ? "✓" : "›"}
+                    </span>
                   </button>
                 ))}
               </div>
