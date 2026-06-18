@@ -20,19 +20,17 @@ export async function POST(req: NextRequest) {
 
     const prompt = `You are a specialist in baby and toddler nutrition. Generate THREE different recipes for a child aged ${age}.
 
-Ingredients available (use these as the base):
+STRICT RULE — Ingredients: You may ONLY use the ingredients the user has listed below. Do not add any extra ingredients to the recipe itself, even common ones like vanilla extract, lemon juice, herbs, or spices, unless the user has listed them.
+
+The ONLY exceptions (always assumed to be in any kitchen):
+- A tiny pinch of salt (omit entirely for under 12 months)
+- A tiny pinch of black pepper (only for 2 years+)
+- Water (for boiling/steaming only)
+
+Ingredients the user has:
 ${ingredients.join(", ")}
 
-You MAY also use these pantry staples and flavourings to make the recipes genuinely tasty:
-- Oils & fats: olive oil, coconut oil, butter
-- Liquids: water, stock (low-salt), coconut milk, whole milk
-- Herbs (fresh or dried): basil, oregano, thyme, rosemary, parsley, coriander, mint, dill, chives
-- Mild spices: cinnamon, cumin, turmeric, coriander, ginger (ground), mild paprika, mild curry powder, garlic powder, onion powder, mixed spice, vanilla extract
-- Acids: lemon juice, lime juice
-- Sweeteners (12m+): a small amount of honey or maple syrup
-- Salt: tiny pinch only for 12m–3yrs; none for under 12 months
-Do NOT use: chilli, hot spices, black pepper (except a tiny pinch for 3yrs+), or large amounts of salt.
-IMPORTANT: Always use at least 2–3 of these flavourings in each recipe to ensure the food is genuinely tasty and not bland.
+For each recipe, you MUST also provide an "optionalSeasonings" list — 2 to 4 suggestions of herbs, spices, or flavourings the parent could add IF they have them at home. These are NOT part of the recipe — they are optional enhancements listed separately. Focus on what would genuinely improve the dish (e.g. "a pinch of cinnamon", "a few drops of vanilla extract", "a squeeze of lemon juice", "a pinch of cumin").
 
 Requirements for ALL recipes:
 - Texture: ${texture}
@@ -70,7 +68,8 @@ Respond with ONLY a valid JSON object, no markdown, no extra text:
       "cookTime": "string (e.g. 15 mins)",
       "nutritionalNote": "string (1 sentence about key nutrients)",
       "ageSuitabilityNote": "string (1 sentence about why suitable for this age)",
-      "textureNote": "string (1 sentence describing the texture)"
+      "textureNote": "string (1 sentence describing the texture)",
+      "optionalSeasonings": ["e.g. a pinch of cinnamon", "a squeeze of lemon juice"]
     },
     {
       "complexity": "next level",
@@ -82,7 +81,8 @@ Respond with ONLY a valid JSON object, no markdown, no extra text:
       "cookTime": "string",
       "nutritionalNote": "string",
       "ageSuitabilityNote": "string",
-      "textureNote": "string"
+      "textureNote": "string",
+      "optionalSeasonings": ["string"]
     },
     {
       "complexity": "chef's pick",
@@ -94,7 +94,8 @@ Respond with ONLY a valid JSON object, no markdown, no extra text:
       "cookTime": "string",
       "nutritionalNote": "string",
       "ageSuitabilityNote": "string",
-      "textureNote": "string"
+      "textureNote": "string",
+      "optionalSeasonings": ["string"]
     }
   ]
 }`;
