@@ -37,6 +37,15 @@ const COMMON_INGREDIENTS = [
   "watermelon", "whole milk",
 ].sort();
 
+const INGREDIENT_CATEGORIES = [
+  { name: "🍎 Fruit", items: ["apple", "avocado", "banana", "kiwi", "mango", "melon", "peach", "pear", "plum", "raspberry", "strawberry", "watermelon"] },
+  { name: "🥦 Vegetables", items: ["beetroot", "broccoli", "butternut squash", "carrot", "cauliflower", "corn", "courgette", "cucumber", "green beans", "leek", "mushroom", "onion", "parsnip", "pea", "pepper", "potato", "pumpkin", "red pepper", "spinach", "sweet potato", "tomato"] },
+  { name: "🍗 Protein", items: ["beef", "black beans", "chicken", "chickpeas", "cod", "egg", "lamb", "lentils", "salmon", "tofu", "turkey"] },
+  { name: "🧀 Dairy", items: ["butter", "cheddar cheese", "cream cheese", "full-fat yogurt", "mild cheese", "whole milk"] },
+  { name: "🌾 Grains", items: ["bread", "couscous", "oats", "pasta", "plain flour", "quinoa", "rice"] },
+  { name: "🫙 Pantry", items: ["cinnamon", "coconut oil", "garlic", "olive oil", "vanilla extract"] },
+];
+
 const RECIPE_TABS = [
   { label: "🌱 Simple", key: 0, color: "#16A34A", gradient: "linear-gradient(135deg, #22C55E, #4ADE80)" },
   { label: "⭐ Next Level", key: 1, color: "#EA7316", gradient: "linear-gradient(135deg, #F97316, #FB923C)" },
@@ -76,6 +85,7 @@ export default function Home() {
   const [previousRecipeNames, setPreviousRecipeNames] = useState<string[]>([]);
   const [error, setError] = useState("");
   const [showGenerator, setShowGenerator] = useState(false);
+  const [showBrowse, setShowBrowse] = useState(false);
 
   const filteredSuggestions =
     inputValue.trim().length > 0
@@ -97,6 +107,12 @@ export default function Home() {
 
   const removeIngredient = (item: string) => {
     setIngredients(ingredients.filter((i) => i !== item));
+  };
+
+  const toggleBrowseIngredient = (item: string) => {
+    setIngredients((prev) =>
+      prev.includes(item) ? prev.filter((i) => i !== item) : [...prev, item]
+    );
   };
 
   const PUREE_ONLY_AGES = ["6 months"];
@@ -321,8 +337,10 @@ export default function Home() {
                 <div className="w-9 h-9 rounded-full flex items-center justify-center text-white font-black text-lg flex-shrink-0" style={{ background: "#F97316" }}>4</div>
                 <h3 className="font-black text-base uppercase tracking-wide" style={{ color: "#C2410C" }}>🛒 Your Ingredients</h3>
               </div>
-              <div className="relative">
-                <div className="flex gap-2 mb-1">
+
+              {/* Type to search */}
+              <div className="relative mb-1">
+                <div className="flex gap-2">
                   <input
                     type="text"
                     value={inputValue}
@@ -330,8 +348,8 @@ export default function Home() {
                     onFocus={() => setShowSuggestions(true)}
                     onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
                     onKeyDown={(e) => { if (e.key === "Enter") addIngredient(); }}
-                    placeholder="e.g. sweet potato, chicken..."
-                    className="flex-1 border-2 rounded-xl px-4 py-2 text-sm font-semibold focus:outline-none"
+                    placeholder="Type an ingredient..."
+                    className="flex-1 border-2 rounded-xl px-4 py-2 text-sm font-semibold focus:outline-none bg-white"
                     style={{ borderColor: "#FCA99A" }}
                   />
                   <button
@@ -342,7 +360,6 @@ export default function Home() {
                     Add
                   </button>
                 </div>
-
                 {showSuggestions && filteredSuggestions.length > 0 && (
                   <div className="absolute left-0 right-0 z-20 bg-white border-2 rounded-xl shadow-lg overflow-hidden" style={{ borderColor: "#FCA99A" }}>
                     {filteredSuggestions.map((s) => (
@@ -359,10 +376,49 @@ export default function Home() {
                 )}
               </div>
 
-              <p className="text-xs text-orange-400 mb-3">Start typing to see suggestions, or type any ingredient and tap Add</p>
+              {/* Browse toggle */}
+              <button
+                onClick={() => setShowBrowse(!showBrowse)}
+                className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl border-2 text-sm font-bold mt-3 transition-all bg-white"
+                style={{ borderColor: showBrowse ? "#F97316" : "#FCA99A", color: "#C2410C" }}
+              >
+                <span>🗂️ Browse ingredients by category</span>
+                <span className="text-lg">{showBrowse ? "▲" : "▼"}</span>
+              </button>
 
+              {/* Browse panel */}
+              {showBrowse && (
+                <div className="mt-3 space-y-4 bg-white rounded-xl p-4 border-2" style={{ borderColor: "#FCA99A" }}>
+                  {INGREDIENT_CATEGORIES.map((cat) => (
+                    <div key={cat.name}>
+                      <p className="text-xs font-black uppercase tracking-wide mb-2" style={{ color: "#C2410C" }}>{cat.name}</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {cat.items.map((item) => {
+                          const selected = ingredients.includes(item);
+                          return (
+                            <button
+                              key={item}
+                              onClick={() => toggleBrowseIngredient(item)}
+                              className="px-3 py-1.5 rounded-full text-xs font-bold border-2 transition-all capitalize"
+                              style={
+                                selected
+                                  ? { background: "#F97316", borderColor: "#F97316", color: "white" }
+                                  : { background: "#FFF1EE", borderColor: "#FCA99A", color: "#C2410C" }
+                              }
+                            >
+                              {selected ? "✓ " : ""}{item}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Selected chips */}
               {ingredients.length > 0 && (
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 mt-3">
                   {ingredients.map((ing) => (
                     <span key={ing} className="flex items-center gap-1 px-3 py-1 rounded-full text-sm font-bold capitalize" style={{ background: "#FECDD3", color: "#BE123C" }}>
                       {ing}
