@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 
 const AGE_OPTIONS = [
@@ -47,9 +47,9 @@ const INGREDIENT_CATEGORIES = [
 ];
 
 const RECIPE_TABS = [
-  { label: "🌱 Simple", key: 0, color: "#16A34A", gradient: "linear-gradient(135deg, #22C55E, #4ADE80)" },
-  { label: "⭐ Next Level", key: 1, color: "#EA7316", gradient: "linear-gradient(135deg, #F97316, #FB923C)" },
-  { label: "👨‍🍳 Chef's Pick", key: 2, color: "#7C3AED", gradient: "linear-gradient(135deg, #7C3AED, #A78BFA)" },
+  { label: "Simple", emoji: "🌱", key: 0, color: "#16A34A", gradient: "linear-gradient(135deg, #22C55E, #4ADE80)", tagline: "Quick & easy" },
+  { label: "Next Level", emoji: "⭐", key: 1, color: "#EA7316", gradient: "linear-gradient(135deg, #F97316, #FB923C)", tagline: "More creative" },
+  { label: "Chef's Pick", emoji: "👨‍🍳", key: 2, color: "#7C3AED", gradient: "linear-gradient(135deg, #7C3AED, #A78BFA)", tagline: "Most impressive" },
 ];
 
 interface Ingredient {
@@ -71,6 +71,55 @@ interface Recipe {
   optionalSeasonings?: string[];
 }
 
+function SafetyModal({ onDismiss }: { onDismiss: () => void }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center" style={{ background: "rgba(0,0,0,0.55)" }}>
+      <div className="w-full max-w-lg bg-white rounded-t-3xl p-6 pb-8 overflow-y-auto" style={{ maxHeight: "90vh" }}>
+        <div className="text-center mb-5">
+          <span className="text-4xl">👩‍🍳</span>
+          <h2 className="font-black text-gray-800 text-xl mt-2 leading-tight">A few things before you get cooking</h2>
+          <p className="text-sm text-gray-500 mt-1">You know your child best — we&apos;re just here to help with ideas</p>
+        </div>
+
+        <div className="space-y-3 text-sm text-gray-700">
+          <div className="rounded-2xl p-4" style={{ background: "#F0FDF4", border: "1.5px solid #BBF7D0" }}>
+            <p className="font-black text-green-700 mb-1">🤖 Recipes are AI-powered starting points</p>
+            <p>Our recipes are created by AI, which means they&apos;re inspiration to build from — not a strict rulebook. You&apos;re the expert on your kitchen and your little one, so always trust your instincts.</p>
+          </div>
+
+          <div className="rounded-2xl p-4" style={{ background: "#FFF7ED", border: "1.5px solid #FED7AA" }}>
+            <p className="font-black text-orange-700 mb-1">👨‍👩‍👧 You&apos;re in charge</p>
+            <p>This app is designed for parents and carers. You know your child&apos;s readiness, abilities, and preferences better than any app — we&apos;re here to spark ideas, not replace your judgement.</p>
+          </div>
+
+          <div className="rounded-2xl p-4" style={{ background: "#FFFBEB", border: "1.5px solid #FDE68A" }}>
+            <p className="font-black text-amber-700 mb-1">🥜 Always check for your child&apos;s needs</p>
+            <p>Our AI doesn&apos;t know your child personally. Before cooking, always check ingredients against any allergies, intolerances, or dietary needs your little one has.</p>
+          </div>
+
+          <div className="rounded-2xl p-4" style={{ background: "#F5F0FF", border: "1.5px solid #DDD6FE" }}>
+            <p className="font-black text-purple-700 mb-1">🍓 Adapt textures to suit your little one</p>
+            <p>Every child develops at their own pace. We&apos;ll suggest textures based on age, but always adjust portion sizes, cutting styles, and consistency to match where your child is right now.</p>
+          </div>
+
+          <div className="rounded-2xl p-4" style={{ background: "#F0F9FF", border: "1.5px solid #BAE6FD" }}>
+            <p className="font-black text-blue-700 mb-1">💙 When in doubt, ask a professional</p>
+            <p>These recipes are ideas to inspire you, not professional nutritional advice. Your health visitor, GP, or paediatric dietitian are always the best people to turn to for personalised guidance.</p>
+          </div>
+        </div>
+
+        <button
+          onClick={onDismiss}
+          className="w-full mt-6 py-4 rounded-2xl text-white font-black text-base shadow-lg"
+          style={{ background: "linear-gradient(135deg, #F97316, #EC4899)" }}
+        >
+          Got it — let&apos;s get cooking! 🍳
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function Home() {
   const [ingredients, setIngredients] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState("");
@@ -87,6 +136,17 @@ export default function Home() {
   const [error, setError] = useState("");
   const [showGenerator, setShowGenerator] = useState(false);
   const [showBrowse, setShowBrowse] = useState(false);
+  const [showSafetyModal, setShowSafetyModal] = useState(false);
+
+  useEffect(() => {
+    const seen = localStorage.getItem("mfm_safety_seen");
+    if (!seen) setShowSafetyModal(true);
+  }, []);
+
+  const dismissSafetyModal = () => {
+    localStorage.setItem("mfm_safety_seen", "1");
+    setShowSafetyModal(false);
+  };
 
   const filteredSuggestions =
     inputValue.trim().length > 0
@@ -189,6 +249,7 @@ export default function Home() {
   if (!showGenerator) {
     return (
       <div className="min-h-screen flex flex-col" style={{ background: "linear-gradient(135deg, #FFD6D0 0%, #C5EDE8 100%)" }}>
+        {showSafetyModal && <SafetyModal onDismiss={dismissSafetyModal} />}
         <header className="text-center pt-12 pb-6 px-6">
           <div className="flex justify-center mb-4">
             <Image src="/icon-512.png" alt="Munchies for Munchkins" width={96} height={96} className="rounded-3xl shadow-lg" />
@@ -232,8 +293,9 @@ export default function Home() {
           </div>
         </main>
 
-        <footer className="text-center pb-6 text-xs text-gray-500 px-6">
-          Every child develops differently. Age guidance is a general suggestion only. Always consult your health visitor or GP before introducing new foods. This app does not provide medical advice.
+        <footer className="text-center pb-6 text-xs text-gray-500 px-6 space-y-2">
+          <p>Every child develops differently. Always consult your health visitor or GP before introducing new foods.</p>
+          <button onClick={() => setShowSafetyModal(true)} className="underline font-semibold text-gray-400">ⓘ How this app works & important info</button>
         </footer>
       </div>
     );
@@ -241,13 +303,14 @@ export default function Home() {
 
   return (
     <div className="min-h-screen pb-16" style={{ background: "linear-gradient(135deg, #FFD6D0 0%, #C5EDE8 100%)" }}>
+      {showSafetyModal && <SafetyModal onDismiss={dismissSafetyModal} />}
       <header className="sticky top-0 z-10 bg-white shadow-sm px-6 py-4 flex items-center justify-between">
         <button onClick={() => { setShowGenerator(false); setRecipes(null); }} className="font-bold text-sm" style={{ color: "#F97316" }}>← Back</button>
         <div className="flex items-center gap-2">
           <Image src="/icon-512.png" alt="" width={28} height={28} className="rounded-lg" />
           <span className="font-black text-lg" style={{ color: "#E8601A" }}>Munchies for Munchkins</span>
         </div>
-        <div className="w-12" />
+        <button onClick={() => setShowSafetyModal(true)} className="text-gray-400 text-xl font-black w-10 text-right" title="Safety notice">ⓘ</button>
       </header>
 
       <div className="max-w-lg mx-auto px-4 pt-6 space-y-5">
@@ -491,22 +554,28 @@ export default function Home() {
           </>
         ) : (
           <div className="space-y-4">
-            {/* Recipe tabs */}
-            <div className="bg-white rounded-2xl p-2 shadow-sm flex gap-1">
-              {RECIPE_TABS.map((tab) => (
-                <button
-                  key={tab.key}
-                  onClick={() => setSelectedRecipe(tab.key)}
-                  className="flex-1 py-2.5 rounded-xl text-sm font-black transition-all"
-                  style={
-                    selectedRecipe === tab.key
-                      ? { background: tab.gradient, color: "white" }
-                      : { color: "#9CA3AF" }
-                  }
-                >
-                  {tab.label}
-                </button>
-              ))}
+            {/* Recipe selector */}
+            <div className="rounded-3xl p-4 shadow-sm" style={{ background: "linear-gradient(135deg, #FFF7ED, #F0FDF4)" }}>
+              <p className="text-center font-black text-gray-700 text-base mb-1">🎉 Your 3 recipes are ready!</p>
+              <p className="text-center text-sm text-gray-500 mb-4">Select one below to view it</p>
+              <div className="grid grid-cols-3 gap-2">
+                {RECIPE_TABS.map((tab) => (
+                  <button
+                    key={tab.key}
+                    onClick={() => setSelectedRecipe(tab.key)}
+                    className="rounded-2xl font-black transition-all flex flex-col items-center justify-center gap-1 py-5"
+                    style={
+                      selectedRecipe === tab.key
+                        ? { background: tab.gradient, color: "white", boxShadow: "0 6px 18px rgba(0,0,0,0.20)", transform: "scale(1.05)" }
+                        : { background: "white", color: tab.color, border: `2.5px solid ${tab.color}` }
+                    }
+                  >
+                    <span className="text-2xl">{tab.emoji}</span>
+                    <span className="text-xs font-black leading-tight text-center">{tab.label}</span>
+                    <span className="text-xs font-semibold opacity-80 leading-tight text-center">{tab.tagline}</span>
+                  </button>
+                ))}
+              </div>
             </div>
 
             {recipes[selectedRecipe] && (
